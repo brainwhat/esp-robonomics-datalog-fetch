@@ -14,7 +14,7 @@ void fetchDatalog(const char* address, int index) {
   Serial.println("Fetching datalog...");
   
   // Create JSON message for the request
-  String method = "datalog_record";
+  String method = "GET";
   JSONVar params;
   params[0] = address;
   params[1] = index;
