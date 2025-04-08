@@ -1,52 +1,10 @@
-#include <Arduino.h>
 #include <WiFi.h>
-#include <Robonomics.h>
+#include <HTTPClient.h>
 
 #define WIFI_SSID "Semen-2 g"
 #define WIFI_PASSWORD "Mohave-2021"
 
-#define ROBONOMICS_HOST "kusama.rpc.robonomics.network"
-#define PREDEFINED_ADDRESS "4DCZ7M6cBpEkpsa7FqETcTVw8dMefxF47cxq3ZEAhJEFYr6d" 
-
-Robonomics robonomics;
-
-void fetchDatalog(const char* address, int index) {
-  Serial.println("Fetching datalog...");
-  
-  // Create JSON message for the request
-  String method = "GET";
-  JSONVar params;
-  params[0] = address;
-  params[1] = index;
-  
-  // Create request
-  BlockchainUtils blockchainUtils;
-  blockchainUtils.setup(ROBONOMICS_HOST);
-  String requestMessage = blockchainUtils.createWebsocketMessage(method, params);
-  
-  // Send request and get result
-  JSONVar result = blockchainUtils.rpcRequest(requestMessage);
-  
-  // Display result
-  if (result.hasOwnProperty("result")) {
-    Serial.println("Datalog record found:");
-    Serial.println(JSON.stringify(result["result"]));
-    
-    if (result["result"].hasOwnProperty("data")) {
-      String dataContent = (const char*)result["result"]["data"];
-      Serial.println("Data content:");
-      Serial.println(dataContent);
-    }
-  } // So far I always get an error 
-  else if (result.hasOwnProperty("error")) {
-    Serial.println("Error fetching datalog:");
-    Serial.println(JSON.stringify(result["error"]));
-  } else {
-    Serial.println("Unknown response format");
-  }
-  
-  blockchainUtils.disconnect();
-}
+const char* serverUrl = "http://polkadot.rpc.robonomics.network/rpc/";
 
 void setup() {
   Serial.begin(115200);
@@ -59,12 +17,31 @@ void setup() {
   }
   Serial.println();
   Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+
+  HTTPClient http;
   
-  fetchDatalog(PREDEFINED_ADDRESS, 1);
+  if (http.begin(serverUrl)) {
+    http.addHeader("Content-Type", "application/json");
+    
+    const char* jsonBody = 
+      "{\"jsonrpc\": \"2.0\", \"id\":0, \"method\":\"rpc_methods\", \"params\":[]}";
+    
+    int httpResponseCode = http.POST(jsonBody);
+    
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println("Response code: " + String(httpResponseCode));
+      Serial.println("Response: " + response);
+    } else {
+      Serial.println("Error: " + String(httpResponseCode));
+    }
+    
+    http.end();
+  } else {
+    Serial.println("Failed to connect to server");
+  }
 }
 
 void loop() {
-  delay(1000);
+  delay(5000);
 }
