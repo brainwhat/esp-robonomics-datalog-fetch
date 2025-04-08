@@ -1,8 +1,6 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-
-#define WIFI_SSID "Semen-2 g"
-#define WIFI_PASSWORD "Mohave-2021"
+#include "secrets.h"  
 
 const char* serverUrl = "http://polkadot.rpc.robonomics.network/rpc/";
 
