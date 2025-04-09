@@ -20,9 +20,8 @@ void setup() {
   
   if (http.begin(serverUrl)) {
     http.addHeader("Content-Type", "application/json");
-    
     const char* jsonBody = 
-      "{\"jsonrpc\": \"2.0\", \"id\":0, \"method\":\"rpc_methods\", \"params\":[]}";
+      "{\"jsonrpc\": \"2.0\", \"id\":0, \"method\":\"system_accountNextIndex\", \"params\":[\"4FiX4Z6k4qGtvZo7vKk65iVyux7fhcrpaHXVpVZoZPQwHCbf\"]}";
     
     int httpResponseCode = http.POST(jsonBody);
     
