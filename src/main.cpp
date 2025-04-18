@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+// #include <scale.h>
 #include "secrets.h"  
 
 const char* serverUrl = "http://polkadot.rpc.robonomics.network/rpc/";
@@ -45,21 +46,7 @@ String rpc_request(const char* method, const char* params[], int paramsCount, in
       Serial.println("Failed to connect to server");
     }
   
-  
   return response;
-}
-
-JsonVariant parse_response(String jsonResponse) {
-  DynamicJsonDocument doc(1024); 
-  DeserializationError error = deserializeJson(doc, jsonResponse);
-  
-  if (error) {
-    Serial.print("JSON parsing failed: ");
-    Serial.println(error.c_str());
-    return JsonVariant();
-  }
-  
-  return doc["result"];
 }
 
 void setup() {
@@ -78,13 +65,17 @@ void setup() {
   const char *params[] = {"0x92972a1d208817aa0e44c51623d2d2f938fd5ac7b43b1f204c4541ac6563f06392899a30d206c34d9be6255f056e1e8fb1900ed96d872e11caa8b76a01279c2cc32784c33d3c2fc3", "0xa9d22d9b82d8f511b88694208dcccdc733d2955a80c2b2c8d181a14e5209560f"};
   String result = rpc_request("state_getStorageAt", params, 2);
   
-  // Parse and use the response
-  JsonVariant parsedResult = parse_response(result);
-  if (!parsedResult.isNull()) {
-    unsigned long accountIndex = parsedResult.as<unsigned long>();
-    Serial.print("Account Next Index: ");
-    Serial.println(accountIndex);
-  }
+  DynamicJsonDocument dest(256);
+  DeserializationError error = deserializeJson(dest, result);
+
+ if (error) {
+   Serial.print(F("deserializeJson() failed: "));
+   Serial.println(error.f_str());
+   return;
+ }
+
+ const char* res= dest["result"];
+ Serial.println(res);
 }
 
 void loop() {
