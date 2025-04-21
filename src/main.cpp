@@ -1,6 +1,11 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <vector>
+#include <decode.h>
+// for C++ lib
+// #include <include/scale/decoder.hpp>
+// for C lib
 // #include <scale.h>
 #include "secrets.h"  
 
@@ -68,14 +73,30 @@ void setup() {
   DynamicJsonDocument dest(256);
   DeserializationError error = deserializeJson(dest, result);
 
- if (error) {
+  if (error) {
    Serial.print(F("deserializeJson() failed: "));
    Serial.println(error.f_str());
    return;
- }
+  }
 
- const char* res= dest["result"];
- Serial.println(res);
+  const char* res= dest["result"];
+  // const char* res = "6d016901";
+  // const char* res = "18400d03";
+
+  Serial.println(res);
+
+  size_t output_length = 0;
+  int64_t* decoded = decode_scale(res, &output_length);
+
+  Serial.println("Decoded values:");
+  for (size_t i = 0; i < output_length; i++) {
+    Serial.print("Value ");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(decoded[i]);
+  }
+
+  delete[] decoded;
 }
 
 void loop() {
