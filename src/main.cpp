@@ -41,8 +41,6 @@ void setup() {
   if (decoded_c_string == NULL) {
     Serial.printf("Error during decoding");
     free_scale_encoded_result(encoded_result); // Освободим выделенную память
-    Serial.println("Demo halted due to error.");
-    while(1) { delay(1000); } // Halt
     return;
   }
 
